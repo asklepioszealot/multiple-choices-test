@@ -33,6 +33,11 @@ Aşağıdaki komutu yapay zekaya kopyalayıp, doğrudan test verisini talep edeb
 
 > Aşağıdaki konuya ilişkin zorlayıcı çoktan seçmeli sorular yaz (1 doğru, 4 güçlü çeldirici). Çıktıyı tam olarak aşağıdaki Markdown formatında ver, lütfen formatın dışına çıkma. Her soruya ait detaylı ve öğretici bir Türkçe açıklama yaz. 
 > 
+> **Persona ve Kaynaklar:**
+> - Yazarken pediatri uzmanı bir hoca gibi düşün ve bir tıp öğrencisine bu konudan neleri sorardın, hangi cevapları beklerdin bunları kurgula.
+> - Soruları hazırlarken kaynak olarak **Nelson Pediatrics 22th Ed**, **PubMed**, **AAP**, **Cochrane** gibi güncel kılavuz ve textbook'ları esas alabilirsin.
+> - Soru sayısı tüm detayları kapsayacak kadar çok olmalı. Açıklamalar doyurucu ve öğretici olmalı.
+> 
 > Vurgu Hiyerarşisi (Açıklama kısmında kullan):
 > - Seviye 1 (Kritik): ==metin== (Çift eşittir)
 > - Seviye 2 (Önemli): > ⚠️ metin (Satır başı uyarı)

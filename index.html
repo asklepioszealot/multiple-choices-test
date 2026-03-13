@@ -560,10 +560,17 @@
       <div class="set-manager-header">
         <h1>📚 Çoktan Seçmeli Test Setleri</h1>
         <p>Çalışmak istediğin soru setlerini yükle ve başla</p>
-        <div class="toggle-container" style="justify-content: center; margin-top: 15px;">
+        <div
+          class="toggle-container"
+          style="justify-content: center; margin-top: 15px"
+        >
           <span>☀️</span>
           <label class="toggle-switch">
-            <input type="checkbox" id="theme-toggle-manager" onchange="toggleTheme(this)">
+            <input
+              type="checkbox"
+              id="theme-toggle-manager"
+              onchange="toggleTheme(this)"
+            />
             <span class="toggle-slider"></span>
           </label>
           <span>🌙</span>
@@ -572,24 +579,42 @@
 
       <div class="set-list" id="set-list">
         <div class="set-empty">
-          Henüz test seti yüklenmedi.<br />Aşağıdaki butondan JSON dosyası yükleyin.
+          Henüz test seti yüklenmedi.<br />Aşağıdaki butondan JSON dosyası
+          yükleyin.
         </div>
       </div>
 
       <div class="set-actions">
-        <label class="btn" for="file-picker">📂 Soru Dosyası Yükle (.json, .md)</label>
-        <input type="file" id="file-picker" accept=".json, .txt, .md" multiple hidden onchange="handleFileSelect(event)" />
-        <button class="btn" id="start-btn" onclick="startStudy()" disabled>▶ Başla</button>
+        <label class="btn" for="file-picker"
+          >📂 Soru Dosyası Yükle (.json, .md)</label
+        >
+        <input
+          type="file"
+          id="file-picker"
+          accept=".json, .txt, .md"
+          multiple
+          hidden
+          onchange="handleFileSelect(event)"
+        />
+        <button class="btn" id="start-btn" onclick="startStudy()" disabled>
+          ▶ Başla
+        </button>
       </div>
     </div>
 
     <!-- Ana Çalışma Ekranı -->
-    <div class="container" id="main-app" style="display: none;">
+    <div class="container" id="main-app" style="display: none">
       <div class="header">
         <div class="header-left">
           <h1>Çoktan Seçmeli Test</h1>
           <p>
-            <button class="btn btn-small btn-secondary" onclick="showSetManager()" style="margin-right: 15px; padding: 4px 10px;">← Setlere Dön</button>
+            <button
+              class="btn btn-small btn-secondary"
+              onclick="showSetManager()"
+              style="margin-right: 15px; padding: 4px 10px"
+            >
+              ← Setlere Dön
+            </button>
             Dr. Ahmet Kara 🩺 <span>|</span> Çoktan seçmeli sorularla konunun
             önemli noktalarını gözden geçirin.
           </p>
@@ -702,6 +727,11 @@
         [KONU]'ne ilişkin zorlayıcı çoktan seçmeli sorular oluştur. Çıktıyı aşağıdaki 
         Düz Metin (Markdown) formatında ver. Lütfen formatın dışına çıkma.
 
+        **Persona ve Kaynaklar:**
+        - Yazarken pediatri uzmanı bir hoca gibi düşün ve bir tıp öğrencisine bu konudan neleri sorardın, hangi cevapları beklerdin bunları kurgula.
+        - Soruları hazırlarken kaynak olarak **Nelson Pediatrics 22th Ed**, **PubMed**, **AAP**, **Cochrane** gibi güncel kılavuz ve textbook'ları esas alabilirsin.
+        - Soru sayısı tüm detayları kapsayacak kadar çok olmalı. Açıklamalar doyurucu ve öğretici olmalı.
+
         Vurgu Hiyerarşisi (Açıklama kısmında kullan):
         🔴 Seviye 1 - MUTLAKA EZBERLEME: ==metin== (çift eşittir içine al)
         🟡 Seviye 2 - DİKKAT ET: > ⚠️ metin (satır başına bunu ekle)
@@ -728,12 +758,10 @@
         ═══════════════════════════════════════════════════════════════════════════════
       */
 
-      
-
       // --- YENİ SET YÖNETİMİ DEĞİŞKENLERİ ---
       let loadedSets = {};
       let selectedSets = new Set();
-      
+
       // --- ESKİ DEĞİŞKENLER ---
       let currentQuestionIndex = 0;
       let allQuestions = [];
@@ -754,10 +782,10 @@
       }
 
       function parseMarkdownToJSON(content, fileName) {
-        const lines = content.split('\n');
+        const lines = content.split("\n");
         const result = {
-            setName: fileName.replace(/\.[^/.]+$/, ""),
-            questions: []
+          setName: fileName.replace(/\.[^/.]+$/, ""),
+          questions: [],
         };
 
         let currentQuestion = null;
@@ -766,80 +794,90 @@
         let explanationLines = [];
 
         function processFormatting(text) {
-            return text
-                .replace(/==([^=]+)==/g, '<strong class="highlight-critical">$1</strong>')
-                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-                .replace(/^(?:> )?⚠️(.*)$/gm, '<span class="highlight-important">⚠️$1</span>');
+          return text
+            .replace(
+              /==([^=]+)==/g,
+              '<strong class="highlight-critical">$1</strong>',
+            )
+            .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+            .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+            .replace(
+              /^(?:> )?⚠️(.*)$/gm,
+              '<span class="highlight-important">⚠️$1</span>',
+            );
         }
 
         for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-            
-            if (line.startsWith('## ')) {
-                result.setName = line.substring(3).trim();
-                continue;
+          const line = lines[i].trim();
+          if (!line) continue;
+
+          if (line.startsWith("## ")) {
+            result.setName = line.substring(3).trim();
+            continue;
+          }
+
+          if (line.startsWith("### Konu:")) {
+            currentSubject = line.substring(9).trim();
+            continue;
+          }
+
+          if (line.startsWith("Soru:")) {
+            if (currentQuestion) {
+              if (capturingExplanation) {
+                currentQuestion.explanation = explanationLines
+                  .join("<br>")
+                  .trim();
+              }
+              result.questions.push(currentQuestion);
             }
-            
-            if (line.startsWith('### Konu:')) {
-                currentSubject = line.substring(9).trim();
-                continue;
+
+            currentQuestion = {
+              q: processFormatting(line.substring(5).trim()),
+              options: [],
+              correct: -1,
+              explanation: "",
+              subject: currentSubject,
+            };
+            capturingExplanation = false;
+            explanationLines = [];
+            continue;
+          }
+
+          const optionMatch = line.match(/^([A-E])\)\s+(.+)$/);
+          if (optionMatch && currentQuestion && !capturingExplanation) {
+            currentQuestion.options.push(
+              processFormatting(optionMatch[2].trim()),
+            );
+            continue;
+          }
+
+          if (line.startsWith("Doğru Cevap:")) {
+            const correctChar = line.substring(12).trim().toUpperCase();
+            if (currentQuestion) {
+              currentQuestion.correct = correctChar.charCodeAt(0) - 65;
             }
-            
-            if (line.startsWith('Soru:')) {
-                if (currentQuestion) {
-                    if (capturingExplanation) {
-                        currentQuestion.explanation = explanationLines.join('<br>').trim();
-                    }
-                    result.questions.push(currentQuestion);
-                }
-                
-                currentQuestion = {
-                    q: processFormatting(line.substring(5).trim()),
-                    options: [],
-                    correct: -1,
-                    explanation: "",
-                    subject: currentSubject
-                };
-                capturingExplanation = false;
-                explanationLines = [];
-                continue;
-            }
-            
-            const optionMatch = line.match(/^([A-E])\)\s+(.+)$/);
-            if (optionMatch && currentQuestion && !capturingExplanation) {
-                currentQuestion.options.push(processFormatting(optionMatch[2].trim()));
-                continue;
-            }
-            
-            if (line.startsWith('Doğru Cevap:')) {
-                const correctChar = line.substring(12).trim().toUpperCase();
-                if (currentQuestion) {
-                    currentQuestion.correct = correctChar.charCodeAt(0) - 65;
-                }
-                continue;
-            }
-            
-            if (line.startsWith('Açıklama:')) {
-                capturingExplanation = true;
-                let expText = line.substring(9).trim();
-                explanationLines.push(processFormatting(expText));
-                continue;
-            }
-            
-            if (capturingExplanation) {
-                explanationLines.push(processFormatting(line));
-            }
+            continue;
+          }
+
+          if (line.startsWith("Açıklama:")) {
+            capturingExplanation = true;
+            let expText = line.substring(9).trim();
+            explanationLines.push(processFormatting(expText));
+            continue;
+          }
+
+          if (capturingExplanation) {
+            explanationLines.push(processFormatting(line));
+          }
         }
 
         if (currentQuestion) {
-            if (capturingExplanation) {
-                currentQuestion.explanation = explanationLines.join('<br>').trim();
-            }
-            result.questions.push(currentQuestion);
+          if (capturingExplanation) {
+            currentQuestion.explanation = explanationLines.join("<br>").trim();
+          }
+          result.questions.push(currentQuestion);
         }
-        
+
         return result;
       }
 
@@ -849,65 +887,75 @@
           try {
             const text = await file.text();
             let data;
-            
-            if (file.name.endsWith('.md') || file.name.endsWith('.txt')) {
-                data = parseMarkdownToJSON(text, file.name);
+
+            if (file.name.endsWith(".md") || file.name.endsWith(".txt")) {
+              data = parseMarkdownToJSON(text, file.name);
             } else {
-                data = JSON.parse(text);
+              data = JSON.parse(text);
             }
-            
+
             const setId = file.name.replace(/\.[^/.]+$/, "");
-            
+
             loadedSets[setId] = {
               setName: data.setName || file.name,
               questions: data.questions || [],
-              fileName: file.name
+              fileName: file.name,
             };
-            
+
             saveSetsList();
-            localStorage.setItem("mc_set_" + setId, JSON.stringify(loadedSets[setId]));
+            localStorage.setItem(
+              "mc_set_" + setId,
+              JSON.stringify(loadedSets[setId]),
+            );
           } catch (e) {
             console.error("Set okuma hatası:", e);
             alert(file.name + " okunamadı. Dosya formatı uyumlu değil.");
           }
         }
-        
-        Object.keys(loadedSets).forEach(id => selectedSets.add(id));
+
+        Object.keys(loadedSets).forEach((id) => selectedSets.add(id));
         renderSetList();
       }
 
       function saveSetsList() {
-        localStorage.setItem("mc_loaded_sets", JSON.stringify(Object.keys(loadedSets)));
-        localStorage.setItem("mc_selected_sets", JSON.stringify([...selectedSets]));
+        localStorage.setItem(
+          "mc_loaded_sets",
+          JSON.stringify(Object.keys(loadedSets)),
+        );
+        localStorage.setItem(
+          "mc_selected_sets",
+          JSON.stringify([...selectedSets]),
+        );
       }
 
       function renderSetList() {
         const setListEl = document.getElementById("set-list");
         const startBtn = document.getElementById("start-btn");
-        
+
         if (Object.keys(loadedSets).length === 0) {
-          setListEl.innerHTML = '<div class="set-empty">Henüz test seti yüklenmedi.<br>Aşağıdaki butondan JSON dosyası yükleyin.</div>';
+          setListEl.innerHTML =
+            '<div class="set-empty">Henüz test seti yüklenmedi.<br>Aşağıdaki butondan JSON dosyası yükleyin.</div>';
           startBtn.disabled = true;
           return;
         }
-        
+
         startBtn.disabled = selectedSets.size === 0;
-        setListEl.innerHTML = '';
-        
+        setListEl.innerHTML = "";
+
         for (const [setId, setObj] of Object.entries(loadedSets)) {
           const isSelected = selectedSets.has(setId);
-          
+
           let solvedCount = 0;
-          setObj.questions.forEach(q => {
+          setObj.questions.forEach((q) => {
             if (selectedAnswers[cardId(q)] !== undefined) {
-               solvedCount++;
+              solvedCount++;
             }
           });
-          
+
           const markup = `
             <div class="set-item">
               <div class="set-item-left" onclick="toggleSetSelection('${setId}')">
-                <input type="checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleSetSelection('${setId}')">
+                <input type="checkbox" ${isSelected ? "checked" : ""} onclick="event.stopPropagation(); toggleSetSelection('${setId}')">
                 <div class="set-info">
                   <div class="set-name">${setObj.setName}</div>
                   <div class="set-stats">📚 ${setObj.questions.length} Soru | ✅ Çözülen: ${solvedCount}</div>
@@ -941,25 +989,25 @@
 
       function startStudy() {
         if (selectedSets.size === 0) return;
-        
+
         allQuestions = [];
         for (const setId of selectedSets) {
           if (loadedSets[setId]) {
             allQuestions.push(...loadedSets[setId].questions);
           }
         }
-        
+
         filteredQuestions = [...allQuestions];
         questionOrder = [...Array(filteredQuestions.length).keys()];
         currentQuestionIndex = 0;
-        
+
         document.getElementById("set-manager").style.display = "none";
         document.getElementById("main-app").style.display = "block";
-        
+
         populateTopicFilter();
         updateScoreDisplay();
-        if(filteredQuestions.length > 0) {
-           displayQuestion();
+        if (filteredQuestions.length > 0) {
+          displayQuestion();
         }
       }
 
@@ -1213,7 +1261,8 @@
         const wrongQuestions = allQuestions.filter((q, i) => {
           const cid = cardId(q);
           return (
-            selectedAnswers[cid] !== undefined && selectedAnswers[cid] !== q.correct
+            selectedAnswers[cid] !== undefined &&
+            selectedAnswers[cid] !== q.correct
           );
         });
 
@@ -1247,22 +1296,22 @@
           )
         )
           return;
-        
+
         // Sadece mevcut sorulardaki cevapları sil (diğer setleri etkileme)
-        allQuestions.forEach(q => {
+        allQuestions.forEach((q) => {
           const cid = cardId(q);
           delete selectedAnswers[cid];
           delete solutionVisible[cid];
         });
-        
+
         currentQuestionIndex = 0;
         filteredQuestions = [...allQuestions];
         questionOrder = [...Array(filteredQuestions.length).keys()];
         document.getElementById("topic-select").value = "hepsi";
-        
+
         const jumpInput = document.getElementById("jump-input");
-        if(jumpInput) jumpInput.setAttribute("max", filteredQuestions.length);
-        
+        if (jumpInput) jumpInput.setAttribute("max", filteredQuestions.length);
+
         saveState();
         updateScoreDisplay();
         displayQuestion();
@@ -1310,15 +1359,18 @@
         try {
           const sessionState = {
             currentQuestionIndex: currentQuestionIndex,
-            selectedTopic: document.getElementById("topic-select").value
+            selectedTopic: document.getElementById("topic-select").value,
           };
           localStorage.setItem("mc_session", JSON.stringify(sessionState));
-          
+
           const assessmentState = {
             selectedAnswers: selectedAnswers,
-            solutionVisible: solutionVisible
+            solutionVisible: solutionVisible,
           };
-          localStorage.setItem("mc_assessments", JSON.stringify(assessmentState));
+          localStorage.setItem(
+            "mc_assessments",
+            JSON.stringify(assessmentState),
+          );
         } catch (e) {
           console.error("State saving error", e);
         }
@@ -1329,7 +1381,9 @@
           const savedTheme = localStorage.getItem("quiz-theme");
           if (savedTheme === "dark") {
             const themeToggle = document.getElementById("theme-toggle");
-            const themeToggleManager = document.getElementById("theme-toggle-manager");
+            const themeToggleManager = document.getElementById(
+              "theme-toggle-manager",
+            );
             if (themeToggle) themeToggle.checked = true;
             if (themeToggleManager) themeToggleManager.checked = true;
             document.documentElement.setAttribute("data-theme", "dark");
@@ -1341,7 +1395,7 @@
             selectedAnswers = state.selectedAnswers || {};
             solutionVisible = state.solutionVisible || {};
           }
-          
+
           const savedSession = localStorage.getItem("mc_session");
           if (savedSession) {
             const session = JSON.parse(savedSession);
@@ -1349,8 +1403,8 @@
             const topic = session.selectedTopic || "hepsi";
             const topicSelect = document.getElementById("topic-select");
             if (topicSelect) {
-               topicSelect.value = topic;
-               filterByTopic();
+              topicSelect.value = topic;
+              filterByTopic();
             }
           }
         } catch (e) {
@@ -1377,7 +1431,8 @@
           return;
 
         // Yalnızca main-app görünürse tuşlara izin ver
-        if (document.getElementById("main-app").style.display === "none") return;
+        if (document.getElementById("main-app").style.display === "none")
+          return;
 
         if (e.key === "ArrowLeft") {
           previousQuestion();
@@ -1397,23 +1452,25 @@
         try {
           const storedSets = localStorage.getItem("mc_loaded_sets");
           const storedSelected = localStorage.getItem("mc_selected_sets");
-          
+
           if (storedSets) {
             const setIds = JSON.parse(storedSets);
-            setIds.forEach(id => {
+            setIds.forEach((id) => {
               const setData = localStorage.getItem("mc_set_" + id);
               if (setData) {
                 loadedSets[id] = JSON.parse(setData);
               }
             });
           }
-          
+
           if (storedSelected) {
             const selArray = JSON.parse(storedSelected);
-            selectedSets = new Set(selArray.filter(id => loadedSets[id]));
+            selectedSets = new Set(selArray.filter((id) => loadedSets[id]));
           }
-        } catch(e) { console.error("Cache load error", e); }
-        
+        } catch (e) {
+          console.error("Cache load error", e);
+        }
+
         loadState();
         renderSetList();
       }
@@ -1422,5 +1479,3 @@
     </script>
   </body>
 </html>
-
-
