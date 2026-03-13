@@ -31,7 +31,13 @@ Yapay zeka asistanlarını (ChatGPT, Claude vb.) kullanarak kendi `.json` test s
 
 Aşağıdaki komutu yapay zekaya kopyalayıp, doğrudan test verisini talep edebilirsiniz:
 
-> Aşağıdaki konuya ilişkin zorlayıcı çoktan seçmeli sorular yaz (1 doğru, 4 güçlü çeldirici). Çıktıyı tam olarak ekteki JSON formatında ver, lütfen formatın dışına çıkma. Her soruya ait detaylı ve öğretici bir Türkçe `explanation` yaz. Vurgulanmasını istediğin kritik noktalarda `<strong>` etiketini kullan.
+> Aşağıdaki konuya ilişkin zorlayıcı çoktan seçmeli sorular yaz (1 doğru, 4 güçlü çeldirici). Çıktıyı tam olarak aşağıdaki Markdown formatında ver, lütfen formatın dışına çıkma. Her soruya ait detaylı ve öğretici bir Türkçe açıklama yaz. 
+> 
+> Vurgu Hiyerarşisi (Açıklama kısmında kullan):
+> - Seviye 1 (Kritik): ==metin== (Çift eşittir)
+> - Seviye 2 (Önemli): > ⚠️ metin (Satır başı uyarı)
+> - Seviye 3 (Normal): **metin** (Kalın)
+> 
 > Konu: [ÇALIŞMAK İSTEDİĞİNİZ KONU]
 > 
 > ```json
