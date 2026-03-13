@@ -58,9 +58,9 @@ Aşağıdaki komutu yapay zekaya kopyalayıp, doğrudan test verisini talep edeb
 
 Yapay zekanın verdiği JSON blok kodunu kopyalayıp örneğin `yenitest.json` dosyası olarak kaydedin ve uygulamadaki `JSON Dosyası Yükle` butonundan uygulamaya tanıtın.
 
-### Yöntem 2: Düz Metin Üzerinden Dönüştürücü (text2json.js) Kullanmak
+### Yöntem 2: Düz Metin (Markdown) Yüklemek
 
-Eğer AI'dan düz metin (text/markdown) olarak çıktı almak istiyorsanız, proje içindeki `tools/text2json.js` Node.js aracını kullanabilirsiniz.
+Uygulama artık `.md` veya `.txt` uzantılı düz metin dosyalarını da doğrudan destekliyor! Aşağıdaki şablonu kullanarak yapay zekadan düz metin olarak soru isteyebilir ve bunu bir `.md` dosyasına kaydederek doğrudan uygulamayaükleyebilirsiniz.
 
 **Beklenen Metin Şablonu:**
 ```text
@@ -78,16 +78,14 @@ Doğru Cevap: B
 Açıklama: Açıklama metni **vurgu** içeriyor. İkinci satır.
 ```
 
-**Kullanım Komutu:**
-```bash
-node tools/text2json.js data/input.txt data/cikti_seti.json
-```
+Not: Elinizdeki `.txt` veya `.md` dosyalarını JSON'a çevirmek için terminalden isterseniz script de kullanabilirsiniz: 
+`node tools/text2json.js data/input.txt data/cikti.json`
 
 ---
 
 ## Kurulum ve Kullanım
 
-Uygulamanın çalışması için herhangi bir sunucuya, veritabanına ya da kuruluma ihtiyacınız yoktur.
-1. `index.html` dosyasını tarayıcınızda (Chrome, Safari, Firefox) sürükleyip bırakarak (veya çift tıklayarak) açın.
-2. Karşınıza çıkan **Set Yöneticisi** ekranından `data/akut_bronsiolit.json` gibi bir örneği veya kendi ürettiğiniz JSON dosyasını yükleyin.
+Uygulamanın çalışması için herhangi bir sunucuya, kurulu bir programa ya da veritabanına ihtiyacınız yoktur.
+1. `index.html` dosyasını tarayıcınızda (Chrome, Safari, Firefox vb.) açın.
+2. Karşınıza çıkan **Set Yöneticisi** ekranından `data/akut_bronsiolit.json` gibi bir örneği veya kendi ürettiğiniz `.json` ya da `.md` dosyasını seçin.
 3. Listeden çalışmak istediğiniz testleri seçip `Başla` butonuna basın!

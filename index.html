@@ -577,8 +577,8 @@
       </div>
 
       <div class="set-actions">
-        <label class="btn" for="file-picker">📂 JSON Dosyası Yükle</label>
-        <input type="file" id="file-picker" accept=".json" multiple hidden onchange="handleFileSelect(event)" />
+        <label class="btn" for="file-picker">📂 Soru Dosyası Yükle (.json, .md)</label>
+        <input type="file" id="file-picker" accept=".json, .txt, .md" multiple hidden onchange="handleFileSelect(event)" />
         <button class="btn" id="start-btn" onclick="startStudy()" disabled>▶ Başla</button>
       </div>
     </div>
@@ -779,13 +779,108 @@
         return "mc_" + hash;
       }
 
+      function parseMarkdownToJSON(content, fileName) {
+        const lines = content.split('\n');
+        const result = {
+            setName: fileName.replace(/\.[^/.]+$/, ""),
+            questions: []
+        };
+
+        let currentQuestion = null;
+        let currentSubject = "Genel";
+        let capturingExplanation = false;
+        let explanationLines = [];
+
+        function processFormatting(text) {
+            return text
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+        }
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            
+            if (line.startsWith('## ')) {
+                result.setName = line.substring(3).trim();
+                continue;
+            }
+            
+            if (line.startsWith('### Konu:')) {
+                currentSubject = line.substring(9).trim();
+                continue;
+            }
+            
+            if (line.startsWith('Soru:')) {
+                if (currentQuestion) {
+                    if (capturingExplanation) {
+                        currentQuestion.explanation = explanationLines.join('<br>').trim();
+                    }
+                    result.questions.push(currentQuestion);
+                }
+                
+                currentQuestion = {
+                    q: processFormatting(line.substring(5).trim()),
+                    options: [],
+                    correct: -1,
+                    explanation: "",
+                    subject: currentSubject
+                };
+                capturingExplanation = false;
+                explanationLines = [];
+                continue;
+            }
+            
+            const optionMatch = line.match(/^([A-E])\)\s+(.+)$/);
+            if (optionMatch && currentQuestion && !capturingExplanation) {
+                currentQuestion.options.push(processFormatting(optionMatch[2].trim()));
+                continue;
+            }
+            
+            if (line.startsWith('Doğru Cevap:')) {
+                const correctChar = line.substring(12).trim().toUpperCase();
+                if (currentQuestion) {
+                    currentQuestion.correct = correctChar.charCodeAt(0) - 65;
+                }
+                continue;
+            }
+            
+            if (line.startsWith('Açıklama:')) {
+                capturingExplanation = true;
+                let expText = line.substring(9).trim();
+                explanationLines.push(processFormatting(expText));
+                continue;
+            }
+            
+            if (capturingExplanation) {
+                explanationLines.push(processFormatting(line));
+            }
+        }
+
+        if (currentQuestion) {
+            if (capturingExplanation) {
+                currentQuestion.explanation = explanationLines.join('<br>').trim();
+            }
+            result.questions.push(currentQuestion);
+        }
+        
+        return result;
+      }
+
       async function handleFileSelect(event) {
         const files = event.target.files;
         for (const file of files) {
           try {
             const text = await file.text();
-            const data = JSON.parse(text);
-            const setId = file.name.replace('.json', '');
+            let data;
+            
+            if (file.name.endsWith('.md') || file.name.endsWith('.txt')) {
+                data = parseMarkdownToJSON(text, file.name);
+            } else {
+                data = JSON.parse(text);
+            }
+            
+            const setId = file.name.replace(/\.[^/.]+$/, "");
             
             loadedSets[setId] = {
               setName: data.setName || file.name,
@@ -797,7 +892,7 @@
             localStorage.setItem("mc_set_" + setId, JSON.stringify(loadedSets[setId]));
           } catch (e) {
             console.error("Set okuma hatası:", e);
-            alert(file.name + " okunamadı. Geçerli bir JSON dosyası olmalı.");
+            alert(file.name + " okunamadı. Dosya formatı uyumlu değil.");
           }
         }
         
