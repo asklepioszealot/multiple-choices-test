@@ -699,60 +699,34 @@
          AI PROMPT: YENİ SORU EKLEME KILAVUZU
         ═══════════════════════════════════════════════════════════════════════════════
         
-        [KONU]'ne ilişkin önemli kısımları sorgulayan sorular oluştur, bunlar bir html 
-        dosyasında const array içine ilave/enjekte edilebilir biçimde olmalı:
+        [KONU]'ne ilişkin zorlayıcı çoktan seçmeli sorular oluştur. Çıktıyı aşağıdaki 
+        Düz Metin (Markdown) formatında ver. Lütfen formatın dışına çıkma.
+
+        Vurgu Hiyerarşisi (Açıklama kısmında kullan):
+        🔴 Seviye 1 - MUTLAKA EZBERLEME: ==metin== (çift eşittir içine al)
+        🟡 Seviye 2 - DİKKAT ET: > ⚠️ metin (satır başına bunu ekle)
+        ⚪ Seviye 3 - NORMAL VURGU: **metin** (kalın yaz)
         
-        1. SORU YAPISI:
-           - 1 doğru cevap
-           - 4 güçlü çeldirici (plausible distractors)
-           - Soru metni: TUS/USMLE sınavları tarzında sorular, high-yield noktaları 
-             sorgulayan sorular, konuya dair olmazsa olmazı içeren sorular ve daha fazlası
-           
-        2. AÇIKLAMA (explanation) İÇİN VURGU HİYERARŞİSİ:
-           
-           🔴 Seviye 1 - MUTLAKA EZBERLEME (çift vurgu: bold + renkli):
-           <strong class='highlight-critical'>3 ml/kg → Hb 1 g/dL</strong>
-           → Sayılar, dozlar, kesin kriterler, sınav favorisi bilgiler
-           
-           🟡 Seviye 2 - DİKKAT ET (sadece renk, bold yok):
-           <span class='highlight-important'>⚠️ Hb >10 g/dL'de transfüzyon gereksiz</span>
-           → Tuzaklar, "olmayan" durumlar, ayırıcı tanı ipuçları, uyarılar
-           
-           ⚪ Seviye 3 - NORMAL VURGU (sadece bold):
-           <strong>Endikasyonlar:</strong>
-           → Bölüm başlıkları, liste başlıkları, kategorik ayırımlar
-           
-        3. ÖRNEK PATTERN:
+        ## [TEST SETİ ADI]
+        ### Konu: [ALT KONU ADI]
+
+        Soru: [SORU METNİ VE **VURGULAR**]
+        A) [ŞIK 1]
+        B) [ŞIK 2]
+        C) [ŞIK 3]
+        D) [ŞIK 4]
+        E) [ŞIK 5]
+        Doğru Cevap: [DOĞRU ŞIKKIN HARFİ - ÖRN: B]
+        Açıklama: [AÇIKLAMA METNİ VE VURGULAR]
         
-        {
-            q: "Eritrosit süspansiyonunda <strong>3 ml/kg</strong> verildiğinde Hb <strong>kaç g/dL artar?</strong>",
-            options: [
-                "0.5 g/dL",
-                "1 g/dL",
-                "2 g/dL",
-                "3 g/dL",
-                "5 g/dL"
-            ],
-            correct: 1,
-            explanation: "<strong class='highlight-critical'>3 ml/kg → Hb 1 g/dL</strong><br><br><span class='highlight-important'>⚠️ Tam kanda 7 ml/kg gerekir</span><br><br><strong>Diğer değerler:</strong><br>• Trombosit: 1 Ü → 5000-10000/mm³",
-            subject: "Kan Transfüzyonu"
-        }
-        
-        4. ZORUNLU ALANLAR:
-           - q: Soru metni (HTML <strong> kullanılabilir)
-           - options: [5 seçenek array'i]
-           - correct: 0-4 arası index (0=A, 1=B, 2=C, 3=D, 4=E)
-           - explanation: Vurgu hiyerarşisiyle açıklama
-           - subject: Konu adı (string)
-        
-        5. ÇELDİRİCİ TASARIMI:
-           - Yakın sayılar (42 gün yerine 35 gün)
-           - Karıştırılabilir kavramlar (TDP vs Trombosit)
-           - Gerçek ama yanlış bağlamda bilgiler
-           - "Tümü" veya "Hiçbiri" gibi mutlak ifadeler
-        
+        Kurallar:
+        - 1 doğru cevap, 4 güçlü çeldirici (plausible distractors) olsun.
+        - Çeldiriciler yakın sayılar, karıştırılabilir kavramlar içersin.
+        - Soru metni TUS/USMLE sınavları tarzında, high-yield noktaları sorgulasın.
+        - Soru kökünde veya açıklamalarda vurgulanması gereken yerleri **kalın** veya ==kritik== yaz.
+        - Her yeni test testi için ## [TEST SETİ ADI], her yeni alt konu için ### Konu: kullan.
         ═══════════════════════════════════════════════════════════════════════════════
-        */
+      */
 
       
 
@@ -793,8 +767,10 @@
 
         function processFormatting(text) {
             return text
+                .replace(/==([^=]+)==/g, '<strong class="highlight-critical">$1</strong>')
                 .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+                .replace(/^(?:> )?⚠️(.*)$/gm, '<span class="highlight-important">⚠️$1</span>');
         }
 
         for (let i = 0; i < lines.length; i++) {
