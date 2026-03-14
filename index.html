@@ -634,7 +634,7 @@
             <input
               type="checkbox"
               id="theme-toggle-manager"
-              onchange="toggleTheme(this)"
+              onchange="toggleTheme(this.checked)"
             />
             <span class="toggle-slider"></span>
           </label>
@@ -1421,8 +1421,20 @@
         .getElementById("jump-input")
         .setAttribute("max", filteredQuestions.length);
 
-      function toggleTheme() {
-        const isDark = document.getElementById("theme-toggle").checked;
+      function toggleTheme(isChecked) {
+        let isDark;
+        if (typeof isChecked === "boolean") {
+          isDark = isChecked;
+          if (document.getElementById("theme-toggle"))
+            document.getElementById("theme-toggle").checked = isDark;
+          if (document.getElementById("theme-toggle-manager"))
+            document.getElementById("theme-toggle-manager").checked = isDark;
+        } else {
+          isDark = document.getElementById("theme-toggle").checked;
+          if (document.getElementById("theme-toggle-manager"))
+            document.getElementById("theme-toggle-manager").checked = isDark;
+        }
+
         if (isDark) {
           document.documentElement.setAttribute("data-theme", "dark");
         } else {
