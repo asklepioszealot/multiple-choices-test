@@ -21,6 +21,28 @@ Bu proje, doktorlar ve tıp öğrencileri için (başta TUS ve USMLE olmak üzer
 5. **Modern Arayüz ve Karanlık Tema**:
    - Göz yormayan, animasyonlu arayüz ve kalıcı Karanlık/Aydınlık mod seçeneği.
 
+## Windows EXE Alma (Otomatik)
+
+Tek komutla güncel desktop çıktıları almak için:
+
+```powershell
+npm install
+npm run release
+```
+
+Bu komut sırasıyla:
+
+1. `index.html` ve `data/` içeriğini `dist/` altında hazırlar.
+2. `npx tauri build --bundles nsis` ile kurulum dosyasını üretir.
+3. Portable (`app.exe`) ve kurulum (`*-setup.exe`) çıktılarını `release/` altında versiyon+commit adlarıyla saklar.
+4. İsteğe bağlı kök dosya adlarını da günceller (`MCQ_Test_Portable.exe`, `MCQ_Test_Kurulum.exe`).
+
+Sadece `release/` klasörlü çıktıyı almak için:
+
+```powershell
+npm run release:no-legacy
+```
+
 ---
 
 ## Veri Seti Oluşturma (AI ile Hızlı Soru Üretme)

@@ -1,0 +1,28 @@
+{
+  "name": "multiple-choices-test",
+  "version": "1.0.0",
+  "description": "Doktorlar ve tıp öğrencileri için lokal çalışan, JSON tabanlı çoktan seçmeli test uygulaması.",
+  "main": "index.js",
+  "scripts": {
+    "build:dist": "node build.mjs",
+    "build:desktop": "npx tauri build --bundles nsis",
+    "release": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/build-release.ps1",
+    "release:no-legacy": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/build-release.ps1 -NoLegacyCopy",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asklepioszealot/multiple-choices-test.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/asklepioszealot/multiple-choices-test/issues"
+  },
+  "homepage": "https://github.com/asklepioszealot/multiple-choices-test#readme",
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.10.1"
+  }
+}
