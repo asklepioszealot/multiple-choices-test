@@ -570,6 +570,12 @@
         margin-bottom: 15px;
         flex-wrap: wrap;
       }
+      .mode-hint {
+        width: 100%;
+        text-align: center;
+        color: var(--color-text-secondary);
+        font-size: 13px;
+      }
       .set-actions {
         display: flex;
         justify-content: center;
@@ -586,6 +592,30 @@
       }
       .btn-danger:hover {
         background: #a72f26;
+      }
+      .undo-toast {
+        position: fixed;
+        left: 50%;
+        bottom: 24px;
+        transform: translateX(-50%);
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border);
+        border-left: 4px solid var(--color-accent);
+        border-radius: 10px;
+        padding: 12px 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        display: none;
+        align-items: center;
+        gap: 12px;
+        z-index: 50;
+      }
+      .undo-toast button {
+        border: none;
+        background: var(--color-accent);
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        cursor: pointer;
       }
     </style>
   </head>
@@ -619,11 +649,23 @@
         </div>
       </div>
       <div class="set-list-tools" id="set-list-tools" style="display: none">
-        <button class="btn btn-small btn-secondary" onclick="selectAllSets()">
+        <button
+          class="btn btn-small btn-secondary"
+          id="delete-mode-btn"
+          onclick="toggleDeleteMode()"
+        >
+          Silme Modu: Kapalı
+        </button>
+        <button
+          class="btn btn-small btn-secondary"
+          id="select-all-btn"
+          onclick="selectAllSets()"
+        >
           Tümünü Seç
         </button>
         <button
           class="btn btn-small btn-secondary"
+          id="clear-selection-btn"
           onclick="clearSetSelection()"
         >
           Seçimi Kaldır
@@ -636,6 +678,9 @@
         >
           Seçilileri Kaldır
         </button>
+        <div class="mode-hint" id="mode-hint">
+          Mod: Derse dahil edilecek setleri seçiyorsun.
+        </div>
       </div>
 
       <div class="set-actions">
@@ -654,6 +699,10 @@
           ▶ Başla
         </button>
       </div>
+    </div>
+    <div id="undo-toast" class="undo-toast">
+      <span id="undo-message">Set kaldırıldı.</span>
+      <button onclick="undoLastRemoval()">Geri Al</button>
     </div>
 
     <!-- Ana Çalışma Ekranı -->
@@ -776,6 +825,10 @@
       // --- YENİ SET YÖNETİMİ DEĞİŞKENLERİ ---
       let loadedSets = {};
       let selectedSets = new Set();
+      let removeCandidateSets = new Set();
+      let deleteMode = false;
+      let lastRemovedSets = [];
+      let undoTimeoutId = null;
 
       // --- ESKİ DEĞİŞKENLER ---
       let currentQuestionIndex = 0;
@@ -988,6 +1041,10 @@
         const startBtn = document.getElementById("start-btn");
         const setToolsEl = document.getElementById("set-list-tools");
         const removeSelectedBtn = document.getElementById("remove-selected-btn");
+        const deleteModeBtn = document.getElementById("delete-mode-btn");
+        const selectAllBtn = document.getElementById("select-all-btn");
+        const clearSelectionBtn = document.getElementById("clear-selection-btn");
+        const modeHint = document.getElementById("mode-hint");
 
         if (Object.keys(loadedSets).length === 0) {
           setListEl.innerHTML =
@@ -1000,11 +1057,39 @@
 
         startBtn.disabled = selectedSets.size === 0;
         setToolsEl.style.display = "flex";
-        if (removeSelectedBtn) removeSelectedBtn.disabled = selectedSets.size === 0;
+        if (deleteModeBtn) {
+          deleteModeBtn.textContent = deleteMode
+            ? "Silme Modu: Açık"
+            : "Silme Modu: Kapalı";
+          deleteModeBtn.className = deleteMode
+            ? "btn btn-small btn-danger"
+            : "btn btn-small btn-secondary";
+        }
+        if (selectAllBtn) {
+          selectAllBtn.textContent = deleteMode
+            ? "Silineceklerin Tümünü Seç"
+            : "Tümünü Derse Dahil Et";
+        }
+        if (clearSelectionBtn) {
+          clearSelectionBtn.textContent = deleteMode
+            ? "Silme Seçimini Temizle"
+            : "Ders Seçimini Temizle";
+        }
+        if (modeHint) {
+          modeHint.textContent = deleteMode
+            ? "Mod: Sileceğin setleri işaretliyorsun."
+            : "Mod: Derse dahil edilecek setleri seçiyorsun.";
+        }
+        if (removeSelectedBtn) {
+          removeSelectedBtn.disabled = !deleteMode || removeCandidateSets.size === 0;
+          removeSelectedBtn.textContent = `Seçilileri Kaldır (${removeCandidateSets.size})`;
+        }
         setListEl.innerHTML = "";
 
         for (const [setId, setObj] of Object.entries(loadedSets)) {
-          const isSelected = selectedSets.has(setId);
+          const isSelected = deleteMode
+            ? removeCandidateSets.has(setId)
+            : selectedSets.has(setId);
 
           let solvedCount = 0;
           setObj.questions.forEach((q) => {
@@ -1015,8 +1100,8 @@
 
           const markup = `
             <div class="set-item">
-              <div class="set-item-left" onclick="toggleSetSelection('${setId}')">
-                <input type="checkbox" ${isSelected ? "checked" : ""} onclick="event.stopPropagation(); toggleSetSelection('${setId}')">
+              <div class="set-item-left" onclick="toggleSetCheck('${setId}')">
+                <input type="checkbox" ${isSelected ? "checked" : ""} onclick="event.stopPropagation(); toggleSetCheck('${setId}')">
                 <div class="set-info">
                   <div class="set-name">${setObj.setName}</div>
                   <div class="set-stats">📚 ${setObj.questions.length} Soru | ✅ Çözülen: ${solvedCount}</div>
@@ -1027,6 +1112,19 @@
           `;
           setListEl.innerHTML += markup;
         }
+      }
+
+      function toggleSetCheck(setId) {
+        if (deleteMode) {
+          if (removeCandidateSets.has(setId)) {
+            removeCandidateSets.delete(setId);
+          } else {
+            removeCandidateSets.add(setId);
+          }
+          renderSetList();
+          return;
+        }
+        toggleSetSelection(setId);
       }
 
       function toggleSetSelection(setId) {
@@ -1040,33 +1138,101 @@
       }
 
       function deleteSet(setId) {
-        delete loadedSets[setId];
-        selectedSets.delete(setId);
-        localStorage.removeItem("mc_set_" + setId);
+        removeSets([setId]);
+      }
+
+      function removeSets(idsToRemove) {
+        const removed = [];
+        idsToRemove.forEach((setId) => {
+          if (!loadedSets[setId]) return;
+          removed.push({
+            setId: setId,
+            setData: loadedSets[setId],
+            wasSelected: selectedSets.has(setId),
+          });
+          delete loadedSets[setId];
+          selectedSets.delete(setId);
+          removeCandidateSets.delete(setId);
+          localStorage.removeItem("mc_set_" + setId);
+        });
+        if (removed.length === 0) return;
+        lastRemovedSets = removed;
+        showUndoToast(
+          removed.length === 1
+            ? "Set kaldırıldı."
+            : `${removed.length} set kaldırıldı.`,
+        );
         saveSetsList();
         renderSetList();
       }
 
       function selectAllSets() {
+        if (deleteMode) {
+          removeCandidateSets = new Set(Object.keys(loadedSets));
+          renderSetList();
+          return;
+        }
         selectedSets = new Set(Object.keys(loadedSets));
         saveSetsList();
         renderSetList();
       }
 
       function clearSetSelection() {
+        if (deleteMode) {
+          removeCandidateSets.clear();
+          renderSetList();
+          return;
+        }
         selectedSets.clear();
         saveSetsList();
         renderSetList();
       }
 
       function removeSelectedSets() {
-        if (selectedSets.size === 0) return;
-        const idsToRemove = [...selectedSets];
-        idsToRemove.forEach((setId) => {
-          delete loadedSets[setId];
-          localStorage.removeItem("mc_set_" + setId);
+        if (!deleteMode || removeCandidateSets.size === 0) return;
+        removeSets([...removeCandidateSets]);
+      }
+
+      function toggleDeleteMode() {
+        deleteMode = !deleteMode;
+        if (!deleteMode) {
+          removeCandidateSets.clear();
+        }
+        renderSetList();
+      }
+
+      function showUndoToast(message) {
+        const toast = document.getElementById("undo-toast");
+        const msgEl = document.getElementById("undo-message");
+        if (!toast || !msgEl) return;
+        msgEl.textContent = message;
+        toast.style.display = "flex";
+        if (undoTimeoutId) {
+          clearTimeout(undoTimeoutId);
+        }
+        undoTimeoutId = setTimeout(() => {
+          toast.style.display = "none";
+          lastRemovedSets = [];
+        }, 7000);
+      }
+
+      function undoLastRemoval() {
+        if (!lastRemovedSets || lastRemovedSets.length === 0) return;
+        lastRemovedSets.forEach((entry) => {
+          loadedSets[entry.setId] = entry.setData;
+          localStorage.setItem("mc_set_" + entry.setId, JSON.stringify(entry.setData));
+          if (entry.wasSelected) {
+            selectedSets.add(entry.setId);
+          }
         });
-        selectedSets.clear();
+        const toast = document.getElementById("undo-toast");
+        if (toast) toast.style.display = "none";
+        if (undoTimeoutId) {
+          clearTimeout(undoTimeoutId);
+          undoTimeoutId = null;
+        }
+        removeCandidateSets.clear();
+        lastRemovedSets = [];
         saveSetsList();
         renderSetList();
       }
